@@ -1,14 +1,116 @@
-<!DOCTYPE html>
+<!DOCTYPE HTML>
+<!--
+	Prologue by HTML5 UP
+	html5up.net | @n33co
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
 <html>
-<head>
-  <title>ErlangOdbcTips</title>
-  <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true %>
-  <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
-  <%= csrf_meta_tags %>
-</head>
-<body>
+	<head>
+		<title>Erlang ODBC Tips</title>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+				<!--[if lte IE 8]><script src="css/ie/html5shiv.js"></script><![endif]-->
+		<script src="js/jquery.min.js"></script>
+		<script src="js/jquery.scrolly.min.js"></script>
+		<script src="js/jquery.scrollzer.min.js"></script>
+		<script src="js/skel.min.js"></script>
+		<script src="js/skel-layers.min.js"></script>
+		<script src="js/init.js"></script>
+		<noscript>
+			<link rel="stylesheet" href="css/skel.css" />
+			<link rel="stylesheet" href="css/style.css" />
+			<link rel="stylesheet" href="css/style-wide.css" />
+		</noscript>
+		<!--[if lte IE 9]><link rel="stylesheet" href="css/ie/v9.css" /><![endif]-->
+		<!--[if lte IE 8]><link rel="stylesheet" href="css/ie/v8.css" /><![endif]-->
+		<%= csrf_meta_tags %>
+	</head>
+	<body>
 
-<%= yield %>
+		<!-- Header -->
+			<div id="header" class="skel-layers-fixed">
 
-</body>
+				<div class="top">
+
+					<!-- Logo -->
+						<div id="logo">
+							<span class="image avatar48">
+								<img src="http://www.gravatar.com/avatar/12503971cde24500cad15ce2d1da458f" />
+							</span>							
+							<h1 id="title">
+								<a href="http://www.colefichter.ca" target="_blank">Cole Fichter
+								</a>
+							</h1>
+							<p>Data Scientist and Erlang-o-phile.</p>
+						</div>
+
+					<!-- Nav -->
+						<nav id="nav">
+							<!--
+							
+								Prologue's nav expects links in one of two formats:
+								
+								1. Hash link (scrolls to a different section within the page)
+								
+								   <li><a href="#foobar" id="foobar-link" class="icon fa-whatever-icon-you-want skel-layers-ignoreHref"><span class="label">Foobar</span></a></li>
+
+								2. Standard link (sends the user to another page/site)
+
+								   <li><a href="http://foobar.tld" id="foobar-link" class="icon fa-whatever-icon-you-want"><span class="label">Foobar</span></a></li>
+							
+							-->
+							<ul>
+								<li>
+									<a href="#top" id="top-link" class="skel-layers-ignoreHref">
+										<span class="icon fa-home">Welcome</span>
+									</a>
+								</li>
+								<li>
+									<a href="#quickstart" id="quickstart-link" class="skel-layers-ignoreHref">
+										<span class="icon fa-rocket">Quickstart</span>
+									</a>
+								</li>
+							</ul>
+						</nav>
+						
+				</div>
+				
+				<div class="bottom">
+
+					<!-- Social Icons -->
+						<ul class="icons">
+							<li>
+								<a href="http://twitter.com/MathasaurusRex" class="icon fa-twitter">
+									<span class="label">Twitter</span>
+								</a>
+							</li>
+							<li>
+								<a href="http://github.com/colefichter" class="icon fa-github">
+									<span class="label">Github</span>
+								</a>
+							</li>
+							<li>
+								<a href="mailto:erlangodbctips@gmail.com" class="icon fa-at">
+									<span class="label">Email</span>
+								</a>
+							</li>
+						</ul>
+				
+				</div>
+			
+			</div>
+		
+		<!-- Main -->
+		<%= yield %>
+
+		<!-- Footer -->
+			<div id="footer">
+				
+				<!-- Copyright -->
+					<ul class="copyright">
+						<li>&copy; 2014 Cole Fichter. All rights reserved.</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+					</ul>
+				
+			</div>
+
+	</body>
 </html>
