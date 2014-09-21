@@ -21,8 +21,12 @@
 		<div class="container">	
 			<header>
 				<h2>First Things First</h2>
-			</header>				
-			<p>Perhaps you have to interact with a legacy system or have some data that demands strong consistency. If you work with Erlang long enough, you'll find yourself needing to connect to a SQL database.					
+			</header>
+			<p class="alert alert-info">
+				<span class="icon fa-graduation-cap"></span>
+				While this guide <em>should</em> be accessible to everyone, we assume you have some practice building Erlang OTP applicaions. We won't spend time explaining syntax and basic concepts. If you come across something you don't recognize, checkout the excellect <a href="http://learnyousomeerlang.com/">Learn You Some Erlang</a> online book.
+			</p>				
+			<p>If you work with Erlang long enough, you'll find yourself needing to connect to a SQL database because you have to interact with a legacy system or have some data that demands strong consistency.					
 			</p>
 			<p>To achieve this, you'll need to use ODBC. Erlang ships with native ODBC support as part of the standard OTP libraries, so it's available in every installation without any extra effort.
 			</p>
@@ -62,22 +66,98 @@
 			<header>
 				<h2>Connecting</h2>
 			</header>
+			<p>
+				The first steps to using ODBC in Erlang are to declare a dependency on the ODBC OTP application and make sure the application is started. If you use a build system like <a href="https://github.com/basho/rebar">Rebar</a> you'll need to declare a dependency on <code>odbc</code> in the applications list inside your <code>reltool.config</code> file:
+			</p>
+			<pre class="brush: erlang">
+			...
+			{rel, "MyApp", "1.0.0",
+			    [kernel,
+			     stdlib,
+			     odbc]
+			},
+		    ...
+		    </pre>
+		    <p>If you're using a bootstrap script for development, or are manually starting the applications you need, simply add a line to start the <code>odbc</code> application to your initialization routine:
+		    <pre class="brush: erlang">
+		    -module(myapp_bootstrap).
+			-export([start/0]).
+
+			start() ->
+				odbc:start(),	
+			    application:load(myapp),
+			    application:start(myapp).
+		    </pre>
+		    <p>A final alternative is to use a command line argument when starting the shell:</p>
+		    <pre class="brush: erlang;">
+		    erl -s odbc start
+		    </pre> 
+
+		    <p class="alert alert-info">
+				<span class="icon fa-cogs"></span>
+				You can ensure that the <code>odbc</code> OTP application is running by typing <code>application:which_applications().</code> into the Erlang shell and looking for a line like <code>{odbc,"Erlang ODBC application","2.10.18"}</code>.
+			</p>
+
+		    <p>At this point, you should have a working environment with all the dependencies that you need to connect to a SQL database using Erlang ODBC. The last step to get up and running is to gather your connection details into a connection string and attempt a simple SQL query.</p>
+		    <p>The connection string requires three pieces of information: the name of the DSN that you configured earlier, the SQL login name, and the SQL password. Normally, we'd store this information in the application configuration file, but for this guide we'll declare it as a string variable for simplicity:
+		    </p>
+		    <pre class="brush: erlang">
+		    	ConnectionString = "DSN=MyAppDSN;UID=me;PWD=secret"
+		    </pre>
+		    <p>The name of the DSN, in this case <code>MyAppDSN</code> must exactly match the name of the DSN that you created in the Windows ODBC tool. Of course the user name and password must be legitimate credentials for your SQL instance.
+		    </p>
+		    <p>With the connection string ready, let's write a function to test our database connection with the simple query <code>SELECT 1;</code>:
+		    </p>
+		    <pre class="brush: erlang">
+		    -module(myapp_sql_repo).
+		    -export([test_connection/0]).
+
+		    %%%==========================================
+			%%% Client API
+			%%%==========================================
+			test_connection() ->
+				Sql = "SELECT 1;",
+				Connection = connect(),
+			    case odbc:sql_query(Connection, Sql) of
+			        {selected, Columns, Results} ->
+			          io:format("Success!~n Columns: ~p~n Results: ~p~n", 
+			          	[Columns, Results]),
+			          ok;
+			        {error, Reason} ->
+			            {error, Reason}                           
+			    end. 
+
+		    %%%==========================================
+			%%% Internal functions
+			%%%==========================================
+			connect() ->
+			    ConnectionString = "DSN=MyAppDSN;UID=me;PWD=secret",    
+			    {ok, Conn} = odbc:connect(ConnectionString, []),
+			    Conn.
+		    </pre>
+
+
+
+
 			<p>We're still writing content. Check back soon!</p>
 
-			<!--
-			<a href="#" class="image featured"><img src="images/pic08.jpg" alt="" /></a>			
-			<p>Tincidunt eu elit diam magnis pretium accumsan etiam id urna. Ridiculus 
-			ultricies curae quis et rhoncus velit. Lobortis elementum aliquet nec vitae 
-			laoreet eget cubilia quam non etiam odio tincidunt montes. Elementum sem 
-			parturient nulla quam placerat viverra mauris non cum elit tempus ullamcorper 
-			dolor. Libero rutrum ut lacinia donec curae mus vel quisque sociis nec 
-			ornare iaculis.</p>
-			<pre class='brush: erlang'>
-				foo(Bar) ->
-					Bar.
-			</pre>
 
-			-->
+
+
+
 		</div>
+
 	</section>
+
+	<!--
+	IDEAS FOR GOTCHAS:
+
+	- The 64-bit/32-bit problem
+	- NOCOUNT messing up pattern matching
+	- Buffer overflow/string truncation
+	- Unicode character encoding
+	- Sequentializing calls anti-pattern (floods mailbox due to IO time)
+
+	-->
+
 </div>

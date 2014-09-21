@@ -1,3 +1,19 @@
+/* Override the default behavior that centers everything */
+#main > section {
+  text-align: left;
+}
+
+code {
+  font-family: "Courier New", Courier, monospace;
+  color: #404040;
+  background-color: #E5E5E5;
+  border: 1px solid #BFBFBF;
+}
+
+.syntaxhighlighter  .erlang {
+  font-size: 60% !important;
+}
+
 /* ALERT STYLES */
 .alert {
   padding: 15px;
