@@ -3,79 +3,81 @@
 	
 
 	<!-- Intro -->
-		<section id="top" class="one dark cover">
-			<div class="container">
-
-				<header>
-					<h2 class="alt">Erlang ODBC Tips</h2>
-					<h3>A collection of helpful hints for developers using Erlang and ODBC.</h3>
-					<p>Using Erlang's ODBC support to access a SQL database can be an exercise in frustration, but this guide will get you started in no time.</p>
-				</header>
-				
-				<footer>
-					<a href="#quickstart" class="button scrolly">Let's get started!</a>
-				</footer>
-
-			</div>
-		</section>
+	<section id="top" class="one dark cover">
+		<div class="container">
+			<header>
+				<h2 class="alt">Erlang ODBC Tips</h2>
+				<h3>A collection of helpful hints for developers using Erlang and ODBC.</h3>
+				<p>Using Erlang's ODBC (Open Database Connectivity) support to access a SQL database can be an exercise in frustration, but this guide will get you started in no time.</p>
+			</header>			
+			<footer>
+				<a href="#quickstart" class="button scrolly">Let's get started!</a>
+			</footer>
+		</div>
+	</section>
 		
 	<!-- Quickstart -->
-		<section id="quickstart" class="two">
-			<div class="container">
-		
-				<header>
-					<h2>First things First</h2>
-				</header>
-				
-				<p>Perhaps you've noticed that there isn't any content here. We're working to fix that!</p>
-				<!--
-				<div class="row">
-					<div class="4u">
-						<article class="item">
-							<a href="#" class="image fit"><img src="images/pic02.jpg" alt="" /></a>
-							<header>
-								<h3>Ipsum Feugiat</h3>
-							</header>
-						</article>
-						<article class="item">
-							<a href="#" class="image fit"><img src="images/pic03.jpg" alt="" /></a>
-							<header>
-								<h3>Rhoncus Semper</h3>
-							</header>
-						</article>
-					</div>
-					<div class="4u">
-						<article class="item">
-							<a href="#" class="image fit"><img src="images/pic04.jpg" alt="" /></a>
-							<header>
-								<h3>Magna Nullam</h3>
-							</header>
-						</article>
-						<article class="item">
-							<a href="#" class="image fit"><img src="images/pic05.jpg" alt="" /></a>
-							<header>
-								<h3>Natoque Vitae</h3>
-							</header>
-						</article>
-					</div>
-					<div class="4u">
-						<article class="item">
-							<a href="#" class="image fit"><img src="images/pic06.jpg" alt="" /></a>
-							<header>
-								<h3>Dolor Penatibus</h3>
-							</header>
-						</article>
-						<article class="item">
-							<a href="#" class="image fit"><img src="images/pic07.jpg" alt="" /></a>
-							<header>
-								<h3>Orci Convallis</h3>
-							</header>
-						</article>
-					</div>
-				</div>
-				-->
+	<section id="quickstart" class="two">
+		<div class="container">	
+			<header>
+				<h2>First Things First</h2>
+			</header>				
+			<p>Perhaps you have to interact with a legacy system or have some data that demands strong consistency. If you work with Erlang long enough, you'll find yourself needing to connect to a SQL database.					
+			</p>
+			<p>To achieve this, you'll need to use ODBC. Erlang ships with native ODBC support as part of the standard OTP libraries, so it's available in every installation without any extra effort.
+			</p>
+			<h3>Where  To Get Help</h3>
+			<p>
+				If you're using Erlang ODBC for the first time, you're <em>going</em> to need some extra help at some point (hopefully that's why you're here!). Here are some good resources to check out if you get into a pickle.
+			</p>
+			<ul>
+				<li>
+					The official Erlang ODBC <a href="http://www.erlang.org/doc/apps/odbc/getting_started.html">getting started guide</a>.
+				</li>
+				<li>
+					Details of the ODBC <a href="http://www.erlang.org/doc/man/odbc.html">API</a>.
+				</li>
+				<li>
+					The official Erlang ODBC <a href="http://www.erlang.org/doc/apps/odbc/odbc.pdf">reference manual</a> (as PDF).
+				</li>
+			</ul>
+			<h3>Preparing To Connect</h3>
+			<p>An ODBC connection requires a DSN (Data Source Name) to be configured on the system. Unfortunately, Erlang ODBC does not support file DNSs, so the DSN must be configured using the Windows ODBC configuration utilities.				
+			</p>
+			<p>Stata has published an excellent tutorial <a href="http://www.stata.com/support/faqs/data-management/configuring-odbc-win/"> explaining how to set up a Windows Data Source Name</a>. Be sure to follow the instructions for your version of Windows. Also, an ODBC DNS can be either a User DSN or a System DSN. A User DSN is only available to the user who created it, while a System DSN is available to all users of the local system.					
+			</p>
+			<p class="alert alert-danger">
+				<span class="icon fa-warning"></span> 
+				Don't forget to configure a DSN on each environment to which you plan to deploy your compiled Erlang release! The lack of support for file DSNs means you cannot distribute the DSN configuration as part of an Erlang release package. Sadly, you'll need to perform this step manually for each machine on which you wish to run your application.
+			</p>
+			<footer>
+				<a href="#connecting" class="button scrolly">It's time to connect!</a>
+			</footer>
+		</div>
+	</section>
 
-			</div>
-		</section>
+	<!-- Connecting -->
+	<section id="connecting" class="three">
+		<div class="container">
+			<header>
+				<h2>Connecting</h2>
+			</header>
+			<p>We're still writing content. Check back soon!</p>
 
+			<!--
+			<a href="#" class="image featured"><img src="images/pic08.jpg" alt="" /></a>			
+			<p>Tincidunt eu elit diam magnis pretium accumsan etiam id urna. Ridiculus 
+			ultricies curae quis et rhoncus velit. Lobortis elementum aliquet nec vitae 
+			laoreet eget cubilia quam non etiam odio tincidunt montes. Elementum sem 
+			parturient nulla quam placerat viverra mauris non cum elit tempus ullamcorper 
+			dolor. Libero rutrum ut lacinia donec curae mus vel quisque sociis nec 
+			ornare iaculis.</p>
+			<pre class='brush: erlang'>
+				foo(Bar) ->
+					Bar.
+			</pre>
+
+			-->
+		</div>
+	</section>
 </div>

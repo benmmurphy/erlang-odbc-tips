@@ -7,6 +7,7 @@
 <html>
 	<head>
 		<title>Erlang ODBC Tips</title>
+		<!-- Theme stuff -->
 		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 				<!--[if lte IE 8]><script src="css/ie/html5shiv.js"></script><![endif]-->
 		<script src="js/jquery.min.js"></script>
@@ -22,6 +23,15 @@
 		</noscript>
 		<!--[if lte IE 9]><link rel="stylesheet" href="css/ie/v9.css" /><![endif]-->
 		<!--[if lte IE 8]><link rel="stylesheet" href="css/ie/v8.css" /><![endif]-->
+
+		<!-- Syntax Highlighter -->
+		<link type="text/css" rel="stylesheet" href="/syntax_highlighter/shCore.css" />
+		<link type="text/css" rel="stylesheet" href="/syntax_highlighter/shThemeDefault.css" />
+		<script type="text/javascript" src="/syntax_highlighter/shCore.js"></script>
+		<script type="text/javascript" src="/syntax_highlighter/shBrushErlang.js"></script>
+
+		<!-- Custom styles -->
+		<link rel="stylesheet" href="custom.css" />
 		<%= csrf_meta_tags %>
 	</head>
 	<body>
@@ -69,6 +79,11 @@
 										<span class="icon fa-rocket">Quickstart</span>
 									</a>
 								</li>
+								<li>
+									<a href="#connecting" id="connecting-link" class="skel-layers-ignoreHref">
+										<span class="icon fa-exchange">Connecting</span>
+									</a>
+								</li>
 							</ul>
 						</nav>
 						
@@ -112,5 +127,19 @@
 				
 			</div>
 
+
+	<script type="text/javascript">
+		//TODO: clipboard integration...
+		//SyntaxHighlighter.config.clipboardSwf='/Scripts/syntaxhighlighter/clipboard.swf';
+		SyntaxHighlighter.defaults['gutter'] = true;
+		SyntaxHighlighter.defaults['smart-tabs'] = true;
+		SyntaxHighlighter.defaults['auto-links'] = true;
+		SyntaxHighlighter.defaults['collapse'] = false;
+		SyntaxHighlighter.defaults['light'] = false;
+		SyntaxHighlighter.defaults['tab-size'] = 4;
+		SyntaxHighlighter.defaults['toolbar'] = true;
+		SyntaxHighlighter.defaults['wrap-lines'] = true;
+		SyntaxHighlighter.all();
+	</script>
 	</body>
 </html>
