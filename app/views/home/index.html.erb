@@ -135,18 +135,33 @@
 			    {ok, Conn} = odbc:connect(ConnectionString, []),
 			    Conn.
 		    </pre>
-
-
-
-
-			<p>We're still writing content. Check back soon!</p>
-
-
-
-
-
+		    <p>We now have everything we need to test our ODBC connection on the SQL database. Let's give it a try:
+		    </p>
+		    <pre>		    	
+				$>erl -s odbc start
+				Eshell V5.10  (abort with ^G)
+				1> myapp_sql_repo:test_connection().
+				Success!
+				 Columns: [[]]
+				 Results: [{1}]
+				ok
+		    </pre>
+		    <p>If something has gone wrong with SQL itself, you should see an <code>{error, Reason}<code> tuple with a relevant error message. Another common problem may occur if something is wrong with your connection string, preventing your program from establishing an ODBC connection. In that case, you'll see a message similar to:		    	
+		    </p>
+		    <pre>		    	
+				$>erl -s odbc start
+				Eshell V5.10  (abort with ^G)
+				1> myapp_sql_repo:test_connection().				
+				** exception error: no match of right hand side value {error,
+				                                                       "[Microsoft][ODBC Driver
+				Manager] Data source name not found and no default driver specified SQLSTATE IS:
+				 IM002 Connection to database failed."}
+				     in function  myapp_sql_repo:connect/0 (myapp_sql_repo.erl, line 33)
+				     in call from myapp_sql_repo:test_connection/0 (myapp_sql_repo.erl, line 9)
+				4>
+		    </pre>
+		    <p>The message clearly indicates that my DSN name (in the connection string) is incorrect.<p>
 		</div>
-
 	</section>
 
 	<!--
