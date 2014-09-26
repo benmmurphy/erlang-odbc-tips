@@ -231,6 +231,38 @@
 			</pre>
 			<p>If you encounter this error, simply replace the DSN with a new one using the correct architecture for your Erlang system.</p>
 
+
+			<h3>Row Counts and Pattern Matching</h3>
+			<p>When you have a stored procedure or batch of SQL statements that include statements which return counts rather than result sets (for example, UPDATE, INSERT, DELETE) you may find that the returned record counts break the pattern matching in your Erlang code.
+			</p>
+			<p> Suppose I want to insert a new employee record into a <code>employee</code> table, and then return the updated list of employees:
+			</p>
+			<pre class="brush: erlang">
+				create_employee(Name) ->
+					Sql = "INSERT INTO employee VALUES(name); SELECT * FROM employee;"
+					Connection = connect(),
+				    case odbc:sql_query(Connection, Sql) of
+				        {selected, Columns, Results} ->
+				          % Results now contains the employee list
+				          ok;
+				        {error, Reason} ->
+				            {error, Reason}                           
+				    end. 
+			</pre>
+			<p>This code looks great, but when it runs it will produce a <code>bad_match</code> error in the <code>case</code> because the first item returned in the overall result set is the counter indicating that 1 row was inserted before the <code>SELECT</code> statement was executed. To fix the problem, add a <code>NOCOUNT</code> directive to prevent the counter from being returned:
+			</p>
+			<pre class="brush: erlang">
+				create_employee(Name) ->
+					Sql = "SET NOCOUNT ON; INSERT INTO employee VALUES(name); SELECT * FROM employee;"
+					Connection = connect(),
+				    case odbc:sql_query(Connection, Sql) of
+				        {selected, Columns, Results} ->
+				          % Results now contains the employee list
+				          ok;
+				        {error, Reason} ->
+				            {error, Reason}                           
+				    end. 
+			</pre>
 		</div>
 	</section>
 
