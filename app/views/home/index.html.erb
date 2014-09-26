@@ -212,6 +212,7 @@
 				<li>For 64-bit ODBC (on a 64-bit Windows installation) run <code>c:\windows\system32\odbcad32.exe</code></li>
 				<li>For 32-bit ODBC (on a 64-bit Windows installation) run <code>c:\windows\sysWOW64\odbcad32.exe</code></li>
 			</ul>
+			<p>(Looking at those paths, it seems counter-intuitive that the 32-bit config tool would be in a folder called <code>sysWOW64</code>, but there you have it.)</p>
 			<p>If you've already set up a DSN, but you've inadvertantly use the wrong architecture, you'll see an <code>architecture mismatch</code> error when trying to connect:
 			</p>
 			<pre class="brush: bash">
