@@ -174,6 +174,63 @@
 	- Wonky support for NVARCHAR(MAX)
 	- Sequentializing calls anti-pattern (floods mailbox due to IO time)
 
+
+		TODO: put images in static folder, rather than S3!
+
 	-->
+
+	<section id="quickstart" class="four">
+		<div class="container">	
+			<header>
+				<h2>Gotchas (These will bite you in the butt)</h2>
+			</header>
+			<p>There are plenty of wonky things in the Erlang ODBC library that can rear up and bite you without warning. Usually, they are poorly documented and hard to troubleshoot. This section contains a collection of errors that we've seen in the wild, along with some advice in case you experience them.				
+			</p>
+
+			<h3>64-Bit/32-Bit Architecture Mismatch</h3>
+			<p>On a 64-bit Windows machine, it's possible to setup both 32-bit and 64-bit ODBC DSNs in the data sources set up dialog. This can potentially create a problem if you've installed a 32-bit build of Erlang & OTP, but you are trying to connect to a 64-bit ODBC DSN.</p>
+			<p>The first step to preventing or fixing this issue is to determine what type of Erlang build you're running, as this will determine which type of DSN you need. On Windows, running the <code>werl</code> program will open an Erlang shell including the details of the build:
+			</p>
+			<pre class="brush: bash">
+				$>werl
+				Erlang R16A (erts-5.10) [smp:8:8] [async-threads:10]
+
+				Eshell V5.10  (abort with ^G)
+				1> 
+			</pre>
+			<p>Note that the first like contains the Erlang version, R16A, and the ERTS version, 5.10, but there is no indication of the architecture. That means this system is running a 32-bit build of Erlang. On a 64-bit system, it will be clearly indicated along with the other details:
+			</p>
+			<pre class="brush: bash">
+				>werl
+				Erlang R16A (erts-5.10) [64-bit] [smp:8:8] [async-threads:10]
+
+				Eshell V5.10  (abort with ^G)
+				1> 
+			</pre>
+			<p>Knowing exactly what architecture you need, you can now setup the correct type of DSN. Note that Windows has separate set up utilities for each, so you need to launch the correct one.</p>
+			<ul>
+				<li>For 64-bit ODBC (on a 64-bit Windows installation) run <code>c:\windows\system32\odbcad32.exe</code></li>
+				<li>For 32-bit ODBC (on a 64-bit Windows installation) run <code>c:\windows\sysWOW64\odbcad32.exe</code></li>
+			</ul>
+			<p>If you've already set up a DSN, but you've inadvertantly use the wrong architecture, you'll see an <code>architecture mismatch</code> error when trying to connect:
+			</p>
+			<pre class="brush: bash">
+				$>erl -s odbc start
+				Eshell V5.10  (abort with ^G)
+				1> c(myapp_sql_repo).
+				{ok,myapp_sql_repo}
+				2> myapp_sql_repo:test_connection().
+				** exception error: no match of right hand side value {error,
+				                                                       "[Microsoft][ODBC Driver
+				Manager] The specified DSN contains an architecture mismatch between the Driver
+				and Application SQLSTATE IS: IM014 Connection to database failed."}
+				     in function  myapp_sql_repo:connect/0 (myapp_sql_repo.erl, line 33)
+				     in call from myapp_sql_repo:test_connection/0 (myapp_sql_repo.erl, line 9)
+				3>
+			</pre>
+			<p>If you encounter this error, simply replace the DSN with a new one using the correct architecture for your Erlang system.</p>
+
+		</div>
+	</section>
 
 </div>
