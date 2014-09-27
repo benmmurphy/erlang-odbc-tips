@@ -179,7 +179,7 @@
 
 	-->
 
-	<section id="quickstart" class="four">
+	<section id="gotchas" class="four">
 		<div class="container">	
 			<header>
 				<h2>Gotchas (These will bite you in the butt)</h2>
@@ -188,6 +188,10 @@
 			</p>
 
 			<h3>64-Bit/32-Bit Architecture Mismatch</h3>
+			<img src="images/32-bit.png" title="Setting up a 32-bit DSN" class="floatright w300" />
+			<br />
+			<img src="images/64-bit.png" title="Setting up a 64-bit DSN" class="floatright w300" />
+
 			<p>On a 64-bit Windows machine, it's possible to setup both 32-bit and 64-bit ODBC DSNs in the data sources set up dialog. This can potentially create a problem if you've installed a 32-bit build of Erlang & OTP, but you are trying to connect to a 64-bit ODBC DSN.</p>
 			<p>The first step to preventing or fixing this issue is to determine what type of Erlang build you're running, as this will determine which type of DSN you need. On Windows, running the <code>werl</code> program will open an Erlang shell including the details of the build:
 			</p>
@@ -198,7 +202,7 @@
 				Eshell V5.10  (abort with ^G)
 				1> 
 			</pre>
-			<p>Note that the first like contains the Erlang version, R16A, and the ERTS version, 5.10, but there is no indication of the architecture. That means this system is running a 32-bit build of Erlang. On a 64-bit system, it will be clearly indicated along with the other details:
+			<p>Note that the first line contains the Erlang version, <code>R16A</code>, and the ERTS version, <code>5.10</code>, but there is no indication of the architecture. That means this system is running a 32-bit build of Erlang and will need a 32-bit DSN. A 64-bit Erlang build will be clearly indicated with <code>[64-bit]</code> along with the other details:
 			</p>
 			<pre class="brush: bash">
 				>werl
@@ -207,13 +211,14 @@
 				Eshell V5.10  (abort with ^G)
 				1> 
 			</pre>
-			<p>Knowing exactly what architecture you need, you can now setup the correct type of DSN. Note that Windows has separate set up utilities for each, so you need to launch the correct one.</p>
+			<img src="images/odbc_start_menu.png" title="Finding the correct DSN set up tool in the start menu" class="floatright w200" />
+			<p>Knowing exactly what architecture you need, you can now setup the matching type of DSN. Note that Windows has separate set up utilities for each, so you need to launch the correct one.</p>
 			<ul>
-				<li>For 64-bit ODBC (on a 64-bit Windows installation) run <code>c:\windows\system32\odbcad32.exe</code></li>
-				<li>For 32-bit ODBC (on a 64-bit Windows installation) run <code>c:\windows\sysWOW64\odbcad32.exe</code></li>
+				<li>For a 64-bit DSN (on a 64-bit Windows installation) run <code>c:\windows\system32\odbcad32.exe</code></li>
+				<li>For a 32-bit DSN (on a 64-bit Windows installation) run <code>c:\windows\sysWOW64\odbcad32.exe</code></li>
 			</ul>
-			<p>(Looking at those paths, it seems counter-intuitive that the 32-bit config tool would be in a folder called <code>sysWOW64</code>, but there you have it.)</p>
-			<p>If you've already set up a DSN, but you've inadvertantly use the wrong architecture, you'll see an <code>architecture mismatch</code> error when trying to connect:
+			<p>Looking at those paths, it seems counter-intuitive that the 32-bit config tool would be in a folder called <code>sysWOW64</code>, but there you have it.</p>
+			<p>If you've already set up a DSN, but you've inadvertently used the wrong architecture, you'll see an <code>architecture mismatch</code> error when trying to connect:
 			</p>
 			<pre class="brush: bash">
 				$>erl -s odbc start
@@ -235,7 +240,7 @@
 			<h3>Row Counts and Pattern Matching</h3>
 			<p>When you have a stored procedure or batch of SQL statements that include statements which return counts rather than result sets (for example, UPDATE, INSERT, DELETE) you may find that the returned record counts break the pattern matching in your Erlang code.
 			</p>
-			<p> Suppose I want to insert a new employee record into a <code>employee</code> table, and then return the updated list of employees:
+			<p> Suppose I want to insert a new employee record into a <code>employee</code> table, and then return the updated list of all employees:
 			</p>
 			<pre class="brush: erlang">
 				create_employee(Name) ->
@@ -263,6 +268,8 @@
 				            {error, Reason}                           
 				    end. 
 			</pre>
+			<p>This issue crops up frequently when using stored procedures, since the whole point of a procedure is to encapsulate several operations into a single, concise SQL command. Fix it in the same way by adding <code>SET NOCOUNT ON</code> inside your stored procedure before you begin running other SQL commands.
+			</p>
 		</div>
 	</section>
 

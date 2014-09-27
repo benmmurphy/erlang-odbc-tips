@@ -14,6 +14,15 @@ code {
   font-size: 60% !important;
 }
 
+img.floatright {
+  float:right; 
+  clear:both;
+  margin: 3px;
+}
+
+img.w200 { width: 200px; }
+img.w300 { width: 300px; }
+
 /* ALERT STYLES */
 .alert {
   padding: 15px;
