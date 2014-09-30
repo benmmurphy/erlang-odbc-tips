@@ -270,10 +270,16 @@
 			</pre>
 			<p>This issue crops up frequently when using stored procedures, since the whole point of a procedure is to encapsulate several operations into a single, concise SQL command. Fix it in the same way by adding <code>SET NOCOUNT ON</code> inside your stored procedure before you begin running other SQL commands.
 			</p>
+
+			<h3>Buffer Overflows and String Truncation</h3>
+			<p>One handy feature of Erlang is that it implements strings internally as linked lists of integer character codes, allowing strings of arbitrarily long length. We never really need to think about the length of a string, except perhaps detecting a zero-length string to terminate recursion. But, there is one case when it is critically import to length check, and truncate, strings: when passing them to a SQL database through ODBC.
+			</p>
+			<p>Since the Erlang ODBC tool relies on a driver written in unmanaged C code, you absolutely have to be sure of the string length when passing strings as parameters to an ODBC SQL query.
+			</p>
 		</div>
 	</section>
 
-	<section id="contribute" class="four">
+	<section id="contribute" class="five">
 		<div class="container">	
 			<header>
 				<h2>Help Improve This Guide!</h2>
