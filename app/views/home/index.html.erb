@@ -244,9 +244,10 @@
 			</p>
 			<pre class="brush: erlang">
 				create_employee(Name) ->
-					Sql = "INSERT INTO employee VALUES(name); SELECT * FROM employee;"
+					Params = [{{sql_varchar, length(Name)}, [Name]}],
+					Sql = "INSERT INTO employee(name) VALUES(?); SELECT * FROM employee;",
 					Connection = connect(),
-				    case odbc:sql_query(Connection, Sql) of
+				    case odbc:param_query(Connection, Sql, Params) of
 				        {selected, Columns, Results} ->
 				          % Results now contains the employee list
 				          ok;
@@ -259,7 +260,7 @@
 			<pre class="brush: erlang">
 				create_employee(Name) ->
 					Params = [{{sql_varchar, length(Name)}, [Name]}],
-					Sql = "SET NOCOUNT ON; INSERT INTO employee(name) VALUES(?); SELECT * FROM employee;"
+					Sql = "SET NOCOUNT ON; INSERT INTO employee(name) VALUES(?); SELECT * FROM employee;",
 					Connection = connect(),
 				    case odbc:param_query(Connection, Sql, Params) of
 				        {selected, Columns, Results} ->
@@ -275,9 +276,53 @@
 			<h3>Buffer Overflows and String Truncation</h3>
 			<p>One handy feature of Erlang is that it implements strings internally as linked lists of integer character codes, allowing strings of arbitrarily long length. We never really need to think about the length of a string, except perhaps detecting a zero-length string to terminate recursion. But, there is one case when it is critically import to length check, and truncate, strings: when passing them to a SQL database through ODBC.
 			</p>
-			<p>Since the Erlang ODBC tool relies on a driver written in unmanaged C code, you absolutely have to be sure of the string length when passing strings as parameters to an ODBC SQL query.
+			<p>Since the Erlang ODBC tool relies on a driver written in unmanaged C code, you absolutely have to be sure of the string length when passing strings as parameters to an ODBC SQL query. If you pass a string that is longer than you've indicated as the SQL parameter length, a buffer overflow will occur outside the Erlang VM, causing the entire runtime to block.
 			</p>
+			<p>The following example query will cause a buffer overflow to crash the runtime because the SQL parameter is declared as <code>VARCHAR(3)</code> but the string value passed as the parameter exceeds this length.
+			<p>
+			<pre class="brush: erlang;">
+				cause_buffer_overflow() -> %Store the full country name into a field expecting an ISO code.
+					Params = [{{sql_varchar, 3}, ['Canada']}],
+					Sql = "INSERT INTO country(iso_code) VALUES(?);",
+					Connection = connect(),
+				    odbc:param_query(Connection, Sql, Params).
+			</pre>
+			<p><img src="images/odbc_server_buffer_overrun.png" title="A buffer overflow in the ODBC server." class="floatright w300" />
+			When we run this code, a Windows OS dialog box will alert us of the crash, and the Erlang runtime system will block until the dialog box is dismissed. I've found that on production servers, the Erlang system simply waits until a human logs in to check on things (which could be several days after the error) and then must be restarted anyway to resume normal operation.
+			</p>
+			<p>To prevent this problem, you must be absolutely sure that you never pass a parameter value whose length exceeds the declared length of the SQL parameter. Often, that means you'll need to truncate strings in your Erlang code, since the SQL type has already been determined in the database:				
+			</p>
+			<pre class="brush: erlang;">
+				cause_buffer_overflow() ->
+					Country = truncate('Canada', 3), %Prevents buffer overflow!
+					Params = [{{sql_varchar, 3}, [Country]}],
+					Sql = "INSERT INTO country(iso_code) VALUES(?);",
+					Connection = connect(),
+				    odbc:param_query(Connection, Sql, Params).
+
+				truncate(_Any, 0) ->
+				    [];
+				truncate(String, MaxLength) when 
+						is_list(String), 
+						is_integer(MaxLength) ->
+				    case MaxLength < 0 of
+				        true -> "";
+				        false ->
+				            truncate(String, length(String), MaxLength)
+				    end.
+
+				truncate(String, Length, MaxLength) when 
+						is_list(String), 
+						is_integer(Length), 
+						is_integer(MaxLength) ->
+				    case Length =< MaxLength of
+				        true -> String;
+				        false ->
+				            string:sub_string(String, 1, MaxLength)
+				    end.
+			</pre>
 		</div>
+
 	</section>
 
 	<section id="contribute" class="five">
