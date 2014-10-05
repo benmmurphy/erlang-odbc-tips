@@ -258,9 +258,10 @@
 			</p>
 			<pre class="brush: erlang">
 				create_employee(Name) ->
-					Sql = "SET NOCOUNT ON; INSERT INTO employee VALUES(name); SELECT * FROM employee;"
+					Params = [{{sql_varchar, length(Name)}, [Name]}],
+					Sql = "SET NOCOUNT ON; INSERT INTO employee(name) VALUES(?); SELECT * FROM employee;"
 					Connection = connect(),
-				    case odbc:sql_query(Connection, Sql) of
+				    case odbc:param_query(Connection, Sql, Params) of
 				        {selected, Columns, Results} ->
 				          % Results now contains the employee list
 				          ok;
