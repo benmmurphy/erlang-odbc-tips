@@ -24,7 +24,7 @@
 			</header>
 			<p class="alert alert-info">
 				<span class="icon fa-graduation-cap"></span>
-				While this guide <em>should</em> be accessible to everyone, we assume you have some practice building Erlang OTP applicaions. We won't spend time explaining syntax and basic concepts. If you come across something you don't recognize, checkout the excellect <a href="http://learnyousomeerlang.com/">Learn You Some Erlang</a> online book.
+				This guide <em>should</em> be accessible to everyone, but we assume you have some practice building Erlang OTP applications. We won't spend time explaining syntax and basic concepts. If you come across something you don't recognize, checkout the excellent <a href="http://learnyousomeerlang.com/">Learn You Some Erlang</a> on-line book.
 			</p>				
 			<p>If you work with Erlang long enough, you'll find yourself needing to connect to a SQL database because you have to interact with a legacy system or have some data that demands strong consistency.					
 			</p>
@@ -32,7 +32,7 @@
 			</p>
 			<h3>Where  To Get Help</h3>
 			<p>
-				If you're using Erlang ODBC for the first time, you're <em>going</em> to need some extra help at some point (hopefully that's why you're here!). Here are some good resources to check out if you get into a pickle.
+				If you're using Erlang ODBC for the first time, you're <em>going</em> to need some extra help at some point (perhaps that's why you're here). Here are some good resources to check out if you get into a pickle:
 			</p>
 			<ul>
 				<li>
@@ -78,7 +78,7 @@
 			},
 		    ...
 		    </pre>
-		    <p>If you're using a bootstrap script for development, or are manually starting the applications you need, simply add a line to start the <code>odbc</code> application to your initialization routine:
+		    <p>If you're using a bootstrap script for development, or you are manually starting the applications you need, simply add a line to start the <code>odbc</code> application to your initialization routine:
 		    <pre class="brush: erlang">
 		    -module(myapp_bootstrap).
 			-export([start/0]).
@@ -184,7 +184,7 @@
 			<header>
 				<h2>Gotchas (These will bite you in the butt)</h2>
 			</header>
-			<p>There are plenty of wonky things in the Erlang ODBC library that can rear up and bite you without warning. Usually, they are poorly documented and hard to troubleshoot. This section contains a collection of errors that we've seen in the wild, along with some advice in case you experience them.				
+			<p>There are plenty of wonky things in the Erlang ODBC library that can rear up and bite you without warning. They are often poorly documented and difficult to troubleshoot. This section contains a collection of errors that we've seen in the wild, along with some advice in case you experience them.				
 			</p>
 
 			<h3>64-Bit/32-Bit Architecture Mismatch</h3>
@@ -192,7 +192,7 @@
 			<br />
 			<img src="images/64-bit.png" title="Setting up a 64-bit DSN" class="floatright w300" />
 
-			<p>On a 64-bit Windows machine, it's possible to setup both 32-bit and 64-bit ODBC DSNs in the data sources set up dialog. This can potentially create a problem if you've installed a 32-bit build of Erlang & OTP, but you are trying to connect to a 64-bit ODBC DSN.</p>
+			<p>On a 64-bit Windows machine, it's possible to setup both 32-bit and 64-bit ODBC DSNs in the data sources set up dialog. This can potentially create a problem if you've installed a 32-bit build of Erlang/OTP, but you are trying to connect to a 64-bit ODBC DSN.</p>
 			<p>The first step to preventing or fixing this issue is to determine what type of Erlang build you're running, as this will determine which type of DSN you need. On Windows, running the <code>werl</code> program will open an Erlang shell including the details of the build:
 			</p>
 			<pre class="brush: bash">
@@ -211,11 +211,12 @@
 				Eshell V5.10  (abort with ^G)
 				1> 
 			</pre>
-			<img src="images/odbc_start_menu.png" title="Finding the correct DSN set up tool in the start menu" class="floatright w200" />
+			<img src="images/odbc_start_menu.png" title="Finding the correct DSN set up tool in the start menu" class="floatright w300" />
 			<p>Knowing exactly what architecture you need, you can now setup the matching type of DSN. Note that Windows has separate set up utilities for each, so you need to launch the correct one.</p>
 			<ul>
-				<li>For a 64-bit DSN (on a 64-bit Windows installation) run <code>c:\windows\system32\odbcad32.exe</code></li>
-				<li>For a 32-bit DSN (on a 64-bit Windows installation) run <code>c:\windows\sysWOW64\odbcad32.exe</code></li>
+				<li>For a 64-bit DSN (on 64-bit Windows) run <code>c:\windows\system32\odbcad32.exe</code></li>
+				<li>For a 32-bit DSN (on 64-bit Windows) run <code>c:\windows\sysWOW64\odbcad32.exe</code></li>
+				<li>When searching for ODBC in the start menu, both utilities are clearly labeled.</li>
 			</ul>
 			<p>Looking at those paths, it seems counter-intuitive that the 32-bit config tool would be in a folder called <code>sysWOW64</code>, but there you have it.</p>
 			<p>If you've already set up a DSN, but you've inadvertently used the wrong architecture, you'll see an <code>architecture mismatch</code> error when trying to connect:
@@ -274,11 +275,11 @@
 			</p>
 
 			<h3>Buffer Overflows and String Truncation</h3>
-			<p>One handy feature of Erlang is that it implements strings internally as linked lists of integer character codes, allowing strings of arbitrarily long length. We never really need to think about the length of a string, except perhaps detecting a zero-length string to terminate recursion. But, there is one case when it is critically import to length check, and truncate, strings: when passing them to a SQL database through ODBC.
+			<p>One handy feature of Erlang is that it implements strings internally as linked lists of integer character codes, allowing strings of arbitrarily long length. We don't often have to think about string lengths, but there is one case when it is critically import to length check, and truncate, strings: when passing them to a SQL database through ODBC.
 			</p>
 			<p>Since the Erlang ODBC tool relies on a driver written in unmanaged C code, you absolutely have to be sure of the string length when passing strings as parameters to an ODBC SQL query. If you pass a string that is longer than you've indicated as the SQL parameter length, a buffer overflow will occur outside the Erlang VM, causing the entire runtime to block.
 			</p>
-			<p>The following example query will cause a buffer overflow to crash the runtime because the SQL parameter is declared as <code>VARCHAR(3)</code> but the string value passed as the parameter exceeds this length.
+			<p>The following example query will cause a buffer overflow to crash the runtime because the SQL parameter is declared as <code>VARCHAR(3)</code> but the parameter value <code>'Canada'</code> is six characters long:
 			<p>
 			<pre class="brush: erlang;">
 				cause_buffer_overflow() -> %Store the full country name into a field expecting an ISO code.
@@ -287,7 +288,7 @@
 					Connection = connect(),
 				    odbc:param_query(Connection, Sql, Params).
 			</pre>
-			<p><img src="images/odbc_server_buffer_overrun.png" title="A buffer overflow in the ODBC server." class="floatright w300" />
+			<p><img src="images/odbc_server_buffer_overrun.png" title="A buffer overflow in the ODBC server." class="floatright w400" />
 			When we run this code, a Windows OS dialog box will alert us of the crash, and the Erlang runtime system will block until the dialog box is dismissed. I've found that on production servers, the Erlang system simply waits until a human logs in to check on things (which could be several days after the error) and then must be restarted anyway to resume normal operation.
 			</p>
 			<p>To prevent this problem, you must be absolutely sure that you never pass a parameter value whose length exceeds the declared length of the SQL parameter. Often, that means you'll need to truncate strings in your Erlang code, since the SQL type has already been determined in the database:				
