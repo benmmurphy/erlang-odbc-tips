@@ -182,12 +182,13 @@
 				<h2>Gotchas (These will bite you in the butt)</h2>
 			</header>
 			<p>There are plenty of wonky things in the Erlang ODBC library that can rear up and bite you without warning. They are often poorly documented and difficult to troubleshoot. This section contains a collection of errors that we've seen in the wild, along with some advice in case you experience them.				
-			</p>
+			</p>`
 
 			<h3>64-Bit/32-Bit Architecture Mismatch</h3>
 			<img src="images/32-bit.png" title="Setting up a 32-bit DSN" class="floatright w300" />
 			<br />
 			<img src="images/64-bit.png" title="Setting up a 64-bit DSN" class="floatright w300" />
+
 
 			<p>On a 64-bit Windows machine, it's possible to setup both 32-bit and 64-bit ODBC DSNs in the data sources set up dialog. This can potentially create a problem if you've installed a 32-bit build of Erlang/OTP, but you are trying to connect to a 64-bit ODBC DSN.</p>
 			<p>The first step to preventing or fixing this issue is to determine what type of Erlang build you're running, as this will determine which type of DSN you need. On Windows, running the <code>werl</code> program will open an Erlang shell including the details of the build:
@@ -271,6 +272,7 @@
 			<p>This issue crops up frequently when using stored procedures, since the whole point of a procedure is to encapsulate several operations into a single, concise SQL command. Fix it in the same way by adding <code>SET NOCOUNT ON</code> inside your stored procedure before you begin running other SQL commands.
 			</p>
 
+
 			<h3>Buffer Overflows and String Truncation</h3>
 			<p>One handy feature of Erlang is that it implements strings internally as linked lists of integer character codes, allowing strings of arbitrarily long length. We don't often have to think about string lengths, but there is one case when it is critically import to length check, and truncate, strings: when passing them to a SQL database through ODBC.
 			</p>
@@ -319,6 +321,52 @@
 				            string:sub_string(String, 1, MaxLength)
 				    end.
 			</pre>
+			<p></p>
+
+
+			<h3>Unicode Character Encodings</h3>
+			<p>A wise man <a href="http://www.joelonsoftware.com/articles/Unicode.html">once wrote</a> that "it does not make sense to have a string without knowing what encoding it uses." This goes doubly when trying to send strings as SQL parameters from your Erlang application to a SQL database. In particular, the default <a href="http://en.wikipedia.org/wiki/Endianness">endianness</a> of Unicode characters will likely be different in your Erlang system and your SQL server installation, so you must take care to properly encode Unicode strings before storing them. Compare the following two SQL parameters created in an Erlang program:
+			</p>
+			<pre class="brush: erlang;">
+				Params = [
+				  %First parameter: URL as a plain ASCII string
+		          {
+		          	{sql_varchar, ?URL_MAX_LENGTH}, 
+		          	[string_ext:truncate(Url, ?URL_MAX_LENGTH)]
+		          },
+		          %Second parameter: Content as a Unicode string
+		          {
+		          	{sql_wlongvarchar, byte_size(Content)}, 
+		          	[unicode:characters_to_binary(Content, Encoding, {utf16, little})]
+		          }
+		         ]
+			</pre>
+			<p>The first parameter, <code>Url</code>, is treated as a plain old ASCII string in both systems, so it doesn't require any special treatment to store the correct value. The second parameter, <code>Content</code>, is a different case. Because Erlang and SQL Server store Unicode values in different binary formats, we need to manually convert the Erlang representation to the correct format for SQL by calling <code>characters_to_binary/3</code>. Note that here, the <code>Encoding</code> variable contains an atom representing the detected coding of the <code>Content</code> string. For example, if this was part of a web crawling system, you might detect the current encoding from the response headers or the page meta fields.
+			<p>
+
+
+			<h3>Support for NVARCHAR(MAX)</h3>
+			<p>It's not immediately obvious from reading the <a href="http://www.erlang.org/doc/apps/odbc/odbc.pdf">ODBC reference manual</a> how to correctly handle a SQL <code>NVARCHAR(MAX)</code> column in Erlang. To do so is actually fairly easy. First, make sure that your string is not longer than 2^31-1 bytes (2 GB), which is the maximum size allowed in SQl Server. Next, declare your SQL parameter as a <code>sql_wlongvarchar</code> with the length set to the string length. For example, the following Unicode string is correctly stored in SQL Server:
+			</p>
+			<pre class="brush: erlang;">
+				Params = [				  
+		          {
+		          	{sql_wlongvarchar, byte_size(Content)}, 
+		          	[unicode:characters_to_binary(Content, utf8, {utf16, little})]
+		          }
+		         ]
+			</pre>
+			<p>Note that using <code>VARCHAR(MAX)</code> rather than <code>NVARCHAR(MAX)</code> is not feasible since the support for this type, though documented, does not actually seem to work in practice. (If you have figured out how to make it work, please let me know!)
+			</p>
+
+
+			<h3>Sequentializing IO Calls Anti-Pattern</h3>
+			<p>When starting out with Erlang ODBC it can be tempting to sequentialize calls to the database. Suppose that you have a large group of working processes that all need to store results to the database when they finish computing, and so you decide to implement a repository as a <code>gen_server</code> that will accept messages from the workers and store the results of these computations in the database one at a time.				
+			</p>
+			<p>Doing so will usually lead to the repository's mailbox being flooded with messages, since the database IO is almost certainly a longer operation than the computations. The more worker processes you have, the worse the situation becomes. For example, with 10 workers the database call must take no longer than 1/10<sup>th</sup> as long as each computation, for your repository to keep up over the long term.				
+			</p>
+			<p>If you find yourself considering this approach, remember that SQL Server is <em>really</em> good at handling concurrent operations. By contrast, Erlang has no built-in mechanism to limit or handle an overflowing process mailbox. By simply making the database call from inside each worker process, you introduce natural rate limiting into the system and avoid swamping any single individual process (you also avoid introducing the complexity of rate limiting, back-off, and other similar schemes into your application).
+			</p>
 		</div>
 
 	</section>
