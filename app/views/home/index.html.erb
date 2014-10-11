@@ -24,11 +24,9 @@
 			</header>
 			<p class="alert alert-info">
 				<span class="icon fa-graduation-cap"></span>
-				This guide <em>should</em> be accessible to everyone, but we assume you have some practice building Erlang OTP applications. We won't spend time explaining syntax and basic concepts. If you come across something you don't recognize, checkout the excellent <a href="http://learnyousomeerlang.com/">Learn You Some Erlang</a> on-line book.
+				This guide <em>should</em> be accessible to everyone, but we assume you have some experience building Erlang OTP applications. If you come across something you don't recognize, checkout the excellent <a href="http://learnyousomeerlang.com/">Learn You Some Erlang</a> on-line book.
 			</p>				
-			<p>If you work with Erlang long enough, you'll find yourself needing to connect to a SQL database because you have to interact with a legacy system or have some data that demands strong consistency.					
-			</p>
-			<p>To achieve this, you'll need to use ODBC. Erlang ships with native ODBC support as part of the standard OTP libraries, so it's available in every installation without any extra effort.
+			<p>If you work with Erlang long enough, you'll find yourself needing to connect to a SQL database to interact with a legacy system or to store data that demands strong consistency. To achieve this, you'll need to use ODBC. Erlang ships with native ODBC support as part of the standard OTP libraries, so it's available in every installation without any extra effort.
 			</p>
 			<h3>Where  To Get Help</h3>
 			<p>
@@ -67,7 +65,7 @@
 				<h2>Connecting</h2>
 			</header>
 			<p>
-				The first steps to using ODBC in Erlang are to declare a dependency on the ODBC OTP application and make sure the application is started. If you use a build system like <a href="https://github.com/basho/rebar">Rebar</a> you'll need to declare a dependency on <code>odbc</code> in the applications list inside your <code>reltool.config</code> file:
+				The first step to using ODBC in Erlang is to declare a dependency on the ODBC OTP application and ensure that it has started. If you use a build system like <a href="https://github.com/basho/rebar">Rebar</a> you'll need to declare a dependency on <code>odbc</code> in the applications list inside your <code>reltool.config</code> file:
 			</p>
 			<pre class="brush: erlang">
 			...
@@ -98,7 +96,7 @@
 				You can ensure that the <code>odbc</code> OTP application is running by typing <code>application:which_applications().</code> into the Erlang shell and looking for a line like <code>{odbc,"Erlang ODBC application","2.10.18"}</code>.
 			</p>
 
-		    <p>At this point, you should have a working environment with all the dependencies that you need to connect to a SQL database using Erlang ODBC. The last step to get up and running is to gather your connection details into a connection string and attempt a simple SQL query.</p>
+		    <p>At this point, you should have a working environment with all the dependencies that you need to connect to a SQL database. The last step to get up and running is to gather your connection details into a connection string and attempt a simple SQL query.</p>
 		    <p>The connection string requires three pieces of information: the name of the DSN that you configured earlier, the SQL login name, and the SQL password. Normally, we'd store this information in the application configuration file, but for this guide we'll declare it as a string variable for simplicity:
 		    </p>
 		    <pre class="brush: erlang">
@@ -190,7 +188,7 @@
 			<img src="images/64-bit.png" title="Setting up a 64-bit DSN" class="floatright w300" />
 
 
-			<p>On a 64-bit Windows machine, it's possible to setup both 32-bit and 64-bit ODBC DSNs in the data sources set up dialog. This can potentially create a problem if you've installed a 32-bit build of Erlang/OTP, but you are trying to connect to a 64-bit ODBC DSN.</p>
+			<p>On a 64-bit Windows machine, it's possible to setup both 32-bit and 64-bit ODBC DSNs in the data sources setup dialog. This can potentially create a problem if you've installed a 32-bit build of Erlang/OTP, but you are trying to connect to a 64-bit ODBC DSN.</p>
 			<p>The first step to preventing or fixing this issue is to determine what type of Erlang build you're running, as this will determine which type of DSN you need. On Windows, running the <code>werl</code> program will open an Erlang shell including the details of the build:
 			</p>
 			<pre class="brush: bash">
@@ -233,13 +231,13 @@
 				     in call from myapp_sql_repo:test_connection/0 (myapp_sql_repo.erl, line 9)
 				3>
 			</pre>
-			<p>If you encounter this error, simply replace the DSN with a new one using the correct architecture for your Erlang system.</p>
+			<p>If you encounter this error, simply replace the DSN with a new one using the correct architecture for your Erlang installation.</p>
 
 
 			<h3>Row Counts and Pattern Matching</h3>
 			<p>When you have a stored procedure or batch of SQL statements that include statements which return counts rather than result sets (for example, UPDATE, INSERT, DELETE) you may find that the returned record counts break the pattern matching in your Erlang code.
 			</p>
-			<p> Suppose I want to insert a new employee record into a <code>employee</code> table, and then return the updated list of all employees:
+			<p> Suppose an application needs to insert a new employee record into an <code>employee</code> table, and then return the updated list of all employees:
 			</p>
 			<pre class="brush: erlang">
 				create_employee(Name) ->
@@ -269,14 +267,14 @@
 				            {error, Reason}                           
 				    end. 
 			</pre>
-			<p>This issue crops up frequently when using stored procedures, since the whole point of a procedure is to encapsulate several operations into a single, concise SQL command. Fix it in the same way by adding <code>SET NOCOUNT ON</code> inside your stored procedure before you begin running other SQL commands.
+			<p>This issue crops up frequently when using stored procedures, since the whole point of a procedure is to encapsulate several operations into a single, concise command. Fix it in the same way by adding <code>SET NOCOUNT ON</code> inside your stored procedure before you begin running other SQL commands.
 			</p>
 
 
 			<h3>Buffer Overflows and String Truncation</h3>
 			<p>One handy feature of Erlang is that it implements strings internally as linked lists of integer character codes, allowing strings of arbitrarily long length. We don't often have to think about string lengths, but there is one case when it is critically import to length check, and truncate, strings: when passing them to a SQL database through ODBC.
 			</p>
-			<p>Since the Erlang ODBC tool relies on a driver written in unmanaged C code, you absolutely have to be sure of the string length when passing strings as parameters to an ODBC SQL query. If you pass a string that is longer than you've indicated as the SQL parameter length, a buffer overflow will occur outside the Erlang VM, causing the entire runtime to block.
+			<p>Since the Erlang ODBC tool relies on a driver written in unmanaged C code, you absolutely have to be sure of the string length when passing strings as parameters to a query. If you pass a string that is longer than you've indicated as the SQL parameter length, a buffer overflow will occur outside the Erlang VM, causing the entire runtime to block.
 			</p>
 			<p>The following example query will cause a buffer overflow to crash the runtime because the SQL parameter is declared as <code>VARCHAR(3)</code> but the parameter value <code>'Canada'</code> is six characters long:
 			<p>
@@ -290,7 +288,7 @@
 			<p><img src="images/odbc_server_buffer_overrun.png" title="A buffer overflow in the ODBC server." class="floatright w400" />
 			When we run this code, a Windows OS dialog box will alert us of the crash, and the Erlang runtime system will block until the dialog box is dismissed. I've found that on production servers, the Erlang system simply waits until a human logs in to check on things (which could be several days after the error) and then must be restarted anyway to resume normal operation.
 			</p>
-			<p>To prevent this problem, you must be absolutely sure that you never pass a parameter value whose length exceeds the declared length of the SQL parameter. Often, that means you'll need to truncate strings in your Erlang code, since the SQL type has already been determined in the database:				
+			<p>To prevent this problem, you must be absolutely sure that you never pass a parameter value whose length exceeds the declared length of the SQL parameter. Often, that means you'll need to truncate strings in your Erlang code, since the SQL type (and maximum length) has already been determined in the database:				
 			</p>
 			<pre class="brush: erlang;">
 				cause_buffer_overflow() ->
@@ -341,12 +339,12 @@
 		          }
 		         ]
 			</pre>
-			<p>The first parameter, <code>Url</code>, is treated as a plain old ASCII string in both systems, so it doesn't require any special treatment to store the correct value. The second parameter, <code>Content</code>, is a different case. Because Erlang and SQL Server store Unicode values in different binary formats, we need to manually convert the Erlang representation to the correct format for SQL by calling <code>characters_to_binary/3</code>. Note that here, the <code>Encoding</code> variable contains an atom representing the detected coding of the <code>Content</code> string. For example, if this was part of a web crawling system, you might detect the current encoding from the response headers or the page meta fields.
+			<p>The first parameter, <code>Url</code>, is treated as a plain old ASCII string in both systems, so it doesn't require any special treatment to store the correct value. The second parameter, <code>Content</code>, is a different case. Because Erlang and SQL Server store Unicode values in different binary formats, we need to manually convert the Erlang representation to the correct format for SQL by calling <code>characters_to_binary/3</code>. Note that here, the <code>Encoding</code> variable contains an atom representing the detected encoding of the <code>Content</code> string. For example, if this was part of a web crawling system, you might detect the current encoding from the response headers or the page meta fields.
 			<p>
 
 
 			<h3>Support for NVARCHAR(MAX)</h3>
-			<p>It's not immediately obvious from reading the <a href="http://www.erlang.org/doc/apps/odbc/odbc.pdf">ODBC reference manual</a> how to correctly handle a SQL <code>NVARCHAR(MAX)</code> column in Erlang. To do so is actually fairly easy. First, make sure that your string is not longer than 2^31-1 bytes (2 GB), which is the maximum size allowed in SQl Server. Next, declare your SQL parameter as a <code>sql_wlongvarchar</code> with the length set to the string length. For example, the following Unicode string is correctly stored in SQL Server:
+			<p>It's not immediately obvious from reading the <a href="http://www.erlang.org/doc/apps/odbc/odbc.pdf">ODBC reference manual</a> how to correctly handle a SQL <code>NVARCHAR(MAX)</code> column in Erlang. To do so is actually fairly easy. First, make sure that your string is not longer than 2^31-1 bytes (2 GB), which is the maximum size allowed in SQL Server. Next, declare your SQL parameter as a <code>sql_wlongvarchar</code> with the length set to the string length. For example, the following Unicode string is correctly stored in SQL Server:
 			</p>
 			<pre class="brush: erlang;">
 				Params = [				  
@@ -376,7 +374,7 @@
 			<header>
 				<h2>Help Improve This Guide!</h2>
 			</header>
-			<p>Have you found a typo or something that isn't as clear as it could be? Perhaps you have a tip of your own to add to the guide? We would be most grateful if you would <a href="https://github.com/colefichter/erlang-odbc-tips" title="Visit the GitHub repository to submit a pull request">submit a pull request to the github repository</a>.
+			<p>Have you found a typo or something that isn't as clear as it could be? Perhaps you have a tip of your own to add to the guide? We would be most grateful if you would <a href="https://github.com/colefichter/erlang-odbc-tips" title="Visit the GitHub repository to submit a pull request">submit a pull request to the github repository</a> for this guide.
 			</p>
 		</div>
 	</section>

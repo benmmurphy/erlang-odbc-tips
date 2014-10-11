@@ -35,6 +35,11 @@ ul.bulletlist {
   list-style-type: circle; 
 }
 
+.license {
+  display: inline-block;
+  margin: 10px;
+}
+
 /* ALERT STYLES */
 .alert {
   padding: 15px;
