@@ -276,11 +276,11 @@
 			</p>
 			<p>Since the Erlang ODBC tool relies on a driver written in unmanaged C code, you absolutely have to be sure of the string length when passing strings as parameters to a query. If you pass a string that is longer than you've indicated as the SQL parameter length, a buffer overflow will occur outside the Erlang VM, causing the entire runtime to block.
 			</p>
-			<p>The following example query will cause a buffer overflow to crash the runtime because the SQL parameter is declared as <code>VARCHAR(3)</code> but the parameter value <code>'Canada'</code> is six characters long:
+			<p>The following example query will cause a buffer overflow to crash the runtime because the SQL parameter is declared as <code>VARCHAR(3)</code> but the parameter value <code>"Canada"</code> is six characters long:
 			<p>
 			<pre class="brush: erlang;">
 				cause_buffer_overflow() -> %Store the full country name into a field expecting an ISO code.
-					Params = [{{sql_varchar, 3}, ['Canada']}],
+					Params = [{{sql_varchar, 3}, ["Canada"]}],
 					Sql = "INSERT INTO country(iso_code) VALUES(?);",
 					Connection = connect(),
 				    odbc:param_query(Connection, Sql, Params).
@@ -292,7 +292,7 @@
 			</p>
 			<pre class="brush: erlang;">
 				cause_buffer_overflow() ->
-					Country = truncate('Canada', 3), %Prevents buffer overflow!
+					Country = truncate("Canada", 3), %Prevents buffer overflow!
 					Params = [{{sql_varchar, 3}, [Country]}],
 					Sql = "INSERT INTO country(iso_code) VALUES(?);",
 					Connection = connect(),
