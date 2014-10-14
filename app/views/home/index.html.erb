@@ -365,6 +365,38 @@
 			</p>
 			<p>If you find yourself considering this approach, remember that SQL Server is <em>really</em> good at handling concurrent operations. By contrast, Erlang has no built-in mechanism to limit or handle an overflowing process mailbox. By simply making the database call from inside each worker process, you introduce natural rate limiting into the system and avoid swamping any single individual process (you also avoid introducing the complexity of rate limiting, back-off, and other similar schemes into your application).
 			</p>
+			
+			<h3>ODBC 3.0 Incompatibility</h3>
+			<p>The erlang odbcserver claims to be an ODBC 3.0 client. However, it does not correctly handle SQL_NO_DATA results when performing a delete or update that does not match any rows (http://msdn.microsoft.com/en-us/library/ms715424(v=vs.85).aspx). These queries will generate {error, "XXXX"} instead of {updated, 0} results.</p>
+			<p>One work around to fix this is to patch (break) the particular ODBC driver. For example the postgresql driver can be fixed by patching '#if (ODBCVER >= 0x0300)' to '#if 0' in execute.c</p>
+			<pre>
+				
+#if (ODBCVER >= 0x0300)
+                EnvironmentClass *env = (EnvironmentClass *) CC_get_env(conn);
+                const char *cmd = QR_get_command(res);
+                SQLLEN  start_row;
+                if (start_row = stmt->exec_start_row, start_row < 0)
+                        start_row = 0;
+
+                if (retval == SQL_SUCCESS &&
+                    NULL != cmd &&
+                    start_row >= end_row &&
+                    NULL != env &&
+                    EN_is_odbc3(env))
+                {
+                        int     count;
+
+                        if (sscanf(cmd , "UPDATE %d", &count) == 1)
+                                ;
+                        else if (sscanf(cmd , "DELETE %d", &count) == 1)
+                                ;
+                        else
+                                count = -1;
+                        if (0 == count)
+                                retval = SQL_NO_DATA;
+                }
+#endif /* ODBCVER */				
+			</pre>
 		</div>
 
 	</section>
